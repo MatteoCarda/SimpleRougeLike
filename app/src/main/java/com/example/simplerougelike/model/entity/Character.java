@@ -12,29 +12,10 @@ public abstract class Character extends GameObject {
         this.attackPower = attackPower;
     }
 
-    public void takeDamage(double damage) {
-        this.health -= damage;
-        if (health <= 0) {
-            health = 0;
-        }
-    }
-
-    public boolean isAlive() {
-        return this.health > 0;
-    }
-
-    public void attack(Character target) {
-        target.takeDamage(this.attackPower);
-    }
-
     public double getHealth() {return this.health;}
+    public void setHealth(double health) {this.health = health;}
     public double getMaxHealth() {return this.maxHealth;}
     public double getAttackPower() {return this.attackPower;}
-    public void heal(double amount){
-        this.health += amount;
-        if (this.health > this.maxHealth){
-            this.health = this.maxHealth;
-        }
-    };
+    public boolean isAlive() {return this.getHealth() > 0;}
 
 }

@@ -8,9 +8,7 @@ public class PotionItem extends Item{
         super(x,y, "Pozione");
         healingAmount = 25;
     }
-
-    @Override
-    public void onPickup(Player player) {
-        player.heal(healingAmount);
+    public double getHealingAmount() {
+        return healingAmount;
     }
 }
