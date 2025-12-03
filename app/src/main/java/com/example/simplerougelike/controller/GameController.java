@@ -6,6 +6,7 @@ import com.example.simplerougelike.model.entity.Item;
 import com.example.simplerougelike.model.entity.Player;
 import com.example.simplerougelike.service.CharacterService;
 import com.example.simplerougelike.service.CombatService;
+import com.example.simplerougelike.service.EnemyAIService;
 import com.example.simplerougelike.service.ItemService;
 import com.example.simplerougelike.util.MapGenerator;
 
@@ -29,6 +30,8 @@ public class GameController {
     private final CombatService combatService;
     private final CharacterService characterService;
     private final ItemService itemService;
+    private final EnemyAIService enemyAIService;
+
 
     /**
      * Definisce i possibili stati della partita.
@@ -73,6 +76,7 @@ public class GameController {
         this.characterService = new CharacterService();
         this.combatService = new CombatService(this.characterService); // Il CombatService ha bisogno del CharacterService.
         this.itemService = new ItemService(this.characterService); // Anche l'ItemService.
+        this.enemyAIService = new EnemyAIService(this.combatService, this.characterService); // Anche l'EnemyAIService.
 
         // All'avvio, il gioco è in stato di "attesa", pronto per una nuova partita.
         this.gameState = GameState.GAME_OVER;
@@ -103,14 +107,30 @@ public class GameController {
      * Riceve l'input di movimento e orchestra le azioni conseguenti.
      * @param direction La direzione in cui il giocatore intende muoversi.
      */
-    public void handlePlayerTurn(Direction direction) {
+    public void handlePlayerInput(Direction direction) {
         // Se non siamo in gioco (es. in un menu o in game over), non facciamo nulla.
         if (gameState != GameState.PLAYING) {
             return;
         }
-        movePlayer(direction);
+        processGameTurn(direction);
+    }
 
-        // TODO: Qui andrà la logica per far agire i nemici dopo il turno del giocatore.
+    private void processGameTurn(Direction playerDirection) {
+        handlePlayerAction(playerDirection);
+        processEnemyTurns();
+        checkEndGameCondition();
+    }
+
+    private void handlePlayerAction(Direction direction) {
+        movePlayer(direction);
+    }
+
+    private void processEnemyTurns() {
+        for (Enemy enemy : gameMap.getEnemies()) {
+            if (characterService.isAlive(enemy)) {
+                enemyAIService.performTurn(enemy, gameMap, player);
+            }
+        }
     }
 
     /**
@@ -150,7 +170,11 @@ public class GameController {
         Enemy targetEnemy = getEnemyAt(targetX, targetY);
         if (targetEnemy != null) {
             // Sì! Invece di muoversi, il giocatore attacca.
-            combatService.performAttack(player, targetEnemy);
+            boolean isEnemyDead = combatService.performAttack(player, targetEnemy);
+            if (isEnemyDead) {
+                // Il nemico è morto! Lo rimuoviamo dalla mappa.
+                gameMap.getEnemies().remove(targetEnemy);
+            }
             // Il turno finisce. Il giocatore non si muove sulla cella del nemico.
             return;
         }
@@ -199,4 +223,13 @@ public class GameController {
         }
         return null; // Nessun oggetto in questa cella.
     }
+
+    private void checkEndGameCondition(){
+        if(!characterService.isAlive(player)){
+            gameState= GameState.GAME_OVER;
+            System.out.println("Hai perso!");
+        }
+    }
+
+
 }

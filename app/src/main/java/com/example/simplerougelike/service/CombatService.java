@@ -30,11 +30,11 @@ public class CombatService {
      * @param attacker Il personaggio che esegue l'attacco.
      * @param target Il personaggio che dovrebbe subire l'attacco.
      */
-    public void performAttack(Character attacker, Character target) {
+    public boolean performAttack(Character attacker, Character target) {
         // Prima di tutto, un po' di controlli di sicurezza.
         // Non ha senso continuare se uno dei due contendenti non esiste o è già fuori combattimento.
         if (attacker == null || target == null || !characterService.isAlive(attacker) || !characterService.isAlive(target)) {
-            return; // Interrompiamo l'azione qui.
+            return false; // Interrompiamo l'azione qui.
         }
 
         // Calcoliamo il danno. Per ora è semplice: il danno è uguale alla potenza d'attacco.
@@ -49,5 +49,7 @@ public class CombatService {
         // Stampa un messaggio nella console che riassume l'esito dell'attacco.
         System.out.println(attacker.getClass().getSimpleName() + " attacca " + target.getClass().getSimpleName() +
                 " infliggendo " + damage + " danni. Vita rimanente: " + target.getHealth());
+
+        return !characterService.isAlive(target); // Restituiamo true se il target è morto.
     }
 }
