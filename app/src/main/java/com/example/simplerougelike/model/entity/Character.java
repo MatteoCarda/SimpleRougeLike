@@ -67,12 +67,5 @@ public abstract class Character extends GameObject {
      */
     public void setAttackPower(double attackPower) {this.attackPower = attackPower;}
 
-    /**
-     * Controlla se un personaggio è vivo.
-     *
-     * @return true se la salute del personaggio è maggiore di zero, false altrimenti.
-     */
-    public boolean isAlive() {
-        return this.getHealth() > 0;
-    }
+
 }
