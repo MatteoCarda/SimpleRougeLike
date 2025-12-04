@@ -34,23 +34,21 @@ public class MapGenerator {
     /**
      * Genera una mappa di gioco completa con stanze, corridoi, nemici e oggetti.
      *
-     * @param width Larghezza della mappa da generare.
-     * @param height Altezza della mappa da generare.
+     * @param width      Larghezza della mappa da generare.
+     * @param height     Altezza della mappa da generare.
      * @param enemyCount Numero di nemici da posizionare casualmente.
-     * @param itemCount Numero di oggetti da posizionare casualmente.
+     * @param itemCount  Numero di oggetti da posizionare casualmente.
      * @return Un oggetto GameMap pronto per essere utilizzato nel gioco.
      * @throws IllegalStateException se la generazione del dungeon non produce spazi calpestabili.
      */
     public GameMap generateMap(int width, int height, int enemyCount, int itemCount) {
         // 1. USARE SQUIDLIB PER GENERARE LA STRUTTURA DEL DUNGEON
-        // DungeonGenerator crea una griglia di caratteri, dove '#' rappresenta un muro e '.' un pavimento.
         DungeonGenerator dungeonGenerator = new DungeonGenerator(width, height, rng);
         char[][] generatedGrid = dungeonGenerator.generate();
 
         // 2. CONVERTIRE LA GRIGLIA DI CARATTERI IN OGGETTI TILE
-        // Traduciamo la mappa di char in una griglia di nostri oggetti Tile (WallTile e FloorTile).
-        // Teniamo anche traccia di tutte le coordinate del pavimento per il posizionamento degli oggetti.
         Tile[][] grid = new Tile[width][height];
+        // MODIFICA: Usiamo DungeonUtility per ottenere le coordinate, è più pulito.
         ArrayList<Coord> floorCoords = new ArrayList<>();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -58,41 +56,44 @@ public class MapGenerator {
                     grid[x][y] = new WallTile(x, y);
                 } else {
                     grid[x][y] = new FloorTile(x, y);
-                    floorCoords.add(Coord.get(x, y)); // Aggiungiamo le coordinate alla lista dei pavimenti
+                    floorCoords.add(Coord.get(x, y));
                 }
             }
         }
 
-        // 3. MESCOLARE LE POSIZIONI E POSIZIONARE IL GIOCATORE
-        // Mescoliamo la lista di posizioni libere per garantire casualità.
-        rng.shuffle(floorCoords);
-        if (floorCoords.isEmpty()) {
-            // Se non ci sono spazi calpestabili, è impossibile continuare. Lanciamo un'eccezione.
-            throw new IllegalStateException("Nessuna casella calpestabile trovata sulla mappa generata.");
+        // CONTROLLO DI SICUREZZA: assicurati che ci siano abbastanza spazi liberi.
+        if (floorCoords.size() < enemyCount + itemCount + 1) {
+            throw new IllegalStateException("Mappa troppo piccola o dungeon non valido: non ci sono abbastanza caselle  libere per posizionare tutto.");
         }
 
-        // La prima posizione della lista mescolata diventa il punto di spawn del giocatore.
-        Coord playerCoord = floorCoords.remove(0); // Rimuoviamo la posizione per non piazzarci altro
+        // 3. NUOVA LOGICA DI POSIZIONAMENTO SPARSO
+
+        // POSIZIONA IL GIOCATORE
+        // Scegli un indice casuale, prendi la coordinata, e poi rimuovila dalla lista.
+        Coord playerCoord = floorCoords.remove(rng.nextInt(floorCoords.size()));
         Player player = new Player(playerCoord.x, playerCoord.y);
 
-        // 4. POSIZIONARE I NEMICI
-        // Prendiamo le posizioni successive dalla lista per i nemici.
+        // POSIZIONA I NEMICI
         List<Enemy> enemies = new ArrayList<>();
-        for (int i = 0; i < enemyCount && !floorCoords.isEmpty(); i++) {
-            Coord enemyCoord = floorCoords.remove(0);
+        for (int i = 0; i < enemyCount; i++) {
+            // Ripeti il processo: scegli un indice casuale, prendi la coordinata e rimuovila.
+            Coord enemyCoord = floorCoords.remove(rng.nextInt(floorCoords.size()));
             enemies.add(new Enemy(enemyCoord.x, enemyCoord.y));
         }
 
-        // 5. POSIZIONARE GLI OGGETTI
-        // E infine, usiamo le posizioni rimanenti per gli oggetti.
+        // POSIZIONA GLI OGGETTI
         List<Item> items = new ArrayList<>();
-        for (int i = 0; i < itemCount && !floorCoords.isEmpty(); i++) {
-            Coord itemCoord = floorCoords.remove(0);
+        for (int i = 0; i < itemCount; i++) {
+            // Stesso processo per gli oggetti.
+            Coord itemCoord = floorCoords.remove(rng.nextInt(floorCoords.size()));
             items.add(new PotionItem(itemCoord.x, itemCoord.y));
         }
 
-        // 6. CREARE E RESTITUIRE L'OGGETTO GAMEMAP COMPLETO
-        // Assembliamo tutto in un unico oggetto GameMap che rappresenta lo stato iniziale del livello.
+        // 4. CREARE E RESTITUIRE L'OGGETTO GAMEMAP COMPLETO
         return new GameMap(grid, player, enemies, items);
     }
+
+
 }
+
+

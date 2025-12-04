@@ -28,7 +28,4 @@ public abstract class Item extends GameObject {
         return name;
     }
 
-    public int getX() {return x;}
-
-    public int getY() {return y;}
 }

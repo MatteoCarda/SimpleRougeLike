@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "com.example.simplerougelike"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.simplerougelike"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -37,9 +37,7 @@ android {
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
-    // La vecchia dipendenza è stata sostituita con la versione più recente da Maven Central
     implementation("com.github.yellowstonegames:squidlib:3.0.6")
-    implementation(libs.media3.common) // Aggiungo un commento per forzare la risincronizzazione
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

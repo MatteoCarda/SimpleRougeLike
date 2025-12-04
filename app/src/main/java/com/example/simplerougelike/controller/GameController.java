@@ -4,11 +4,19 @@ import com.example.simplerougelike.model.GameMap;
 import com.example.simplerougelike.model.entity.Enemy;
 import com.example.simplerougelike.model.entity.Item;
 import com.example.simplerougelike.model.entity.Player;
+import com.example.simplerougelike.model.entity.Character;
 import com.example.simplerougelike.service.CharacterService;
 import com.example.simplerougelike.service.CombatService;
 import com.example.simplerougelike.service.EnemyAIService;
 import com.example.simplerougelike.service.ItemService;
 import com.example.simplerougelike.util.MapGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import squidpony.squidai.DijkstraMap;
+import squidpony.squidgrid.FOV;
+
 
 /**
  * Controller principale del gioco, gestito come Singleton.
@@ -31,7 +39,13 @@ public class GameController {
     private final CharacterService characterService;
     private final ItemService itemService;
     private final EnemyAIService enemyAIService;
+    private static final int PLAYER_VISION_RADIUS = 8;
 
+    private FOV fov;
+
+    private double[][] playerFov;
+
+    private double[][] resistanceMap;
 
     /**
      * Definisce i possibili stati della partita.
@@ -92,6 +106,10 @@ public class GameController {
         return gameState;
     }
 
+    public double[][] getPlayerFov() {
+        return playerFov;
+    }
+
     /**
      * Avvia una nuova partita, cancellando quella vecchia.
      * Genera una nuova mappa e posiziona il giocatore.
@@ -100,6 +118,19 @@ public class GameController {
         this.gameMap = mapGenerator.generateMap(width, height, enemyCount, itemCount);
         this.player = gameMap.getPlayer(); // Aggiorniamo il riferimento al giocatore.
         this.gameState = GameState.PLAYING; // La partita ha inizio!
+
+        this.fov = new FOV();
+        this.playerFov = new double[width][height];
+        this.resistanceMap = new double[width][height];
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                resistanceMap[x][y] = gameMap.getTile(x, y).isWalkable() ? 0.0 : 1.0;
+            }
+        }
+
+        calculateFov();
+
     }
 
     /**
@@ -107,7 +138,7 @@ public class GameController {
      * Riceve l'input di movimento e orchestra le azioni conseguenti.
      * @param direction La direzione in cui il giocatore intende muoversi.
      */
-    public void handlePlayerInput(Direction direction) {
+    public void handlePlayerTurn(Direction direction) {
         // Se non siamo in gioco (es. in un menu o in game over), non facciamo nulla.
         if (gameState != GameState.PLAYING) {
             return;
@@ -117,6 +148,11 @@ public class GameController {
 
     private void processGameTurn(Direction playerDirection) {
         handlePlayerAction(playerDirection);
+
+        if(characterService.isAlive(player)){
+            calculateFov();
+        }
+
         processEnemyTurns();
         checkEndGameCondition();
     }
@@ -126,11 +162,19 @@ public class GameController {
     }
 
     private void processEnemyTurns() {
+        DijkstraMap dijkstraMapForPlayer = enemyAIService.getDijkstraMap(gameMap);
+        dijkstraMapForPlayer.setGoal(player.getX(), player.getY());
+
+        List<Enemy> enemiesToRemove = new ArrayList<>();
         for (Enemy enemy : gameMap.getEnemies()) {
             if (characterService.isAlive(enemy)) {
-                enemyAIService.performTurn(enemy, gameMap, player);
+                enemyAIService.performTurn(enemy, gameMap, player, dijkstraMapForPlayer);
+            } else {
+                enemiesToRemove.add(enemy); // Aggiungi alla lista dei morti
             }
         }
+        gameMap.getEnemies().removeAll(enemiesToRemove); // Rimuovi in modo sicuro
+
     }
 
     /**
@@ -231,5 +275,12 @@ public class GameController {
         }
     }
 
+    public boolean isAlive(Character character) {
+        return characterService.isAlive(character);
+    }
+
+    private void calculateFov() {
+        FOV.reuseFOV(resistanceMap, playerFov, player.getX(), player.getY(), PLAYER_VISION_RADIUS);
+    }
 
 }

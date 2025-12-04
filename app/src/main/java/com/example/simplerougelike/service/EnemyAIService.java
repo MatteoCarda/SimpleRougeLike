@@ -20,16 +20,14 @@ public class EnemyAIService {
         this.characterService = characterService;
     }
 
-    public void performTurn(Enemy enemy, GameMap gameMap, Player player){
+    public void performTurn(Enemy enemy, GameMap gameMap, Player player, DijkstraMap dijkstraMap){
         int distance = Math.abs(enemy.getX() - player.getX()) + Math.abs(enemy.getY() - player.getY());
         if (distance <= 1){
             combatService.performAttack(enemy, player);
             return;
         }
         if (distance<=8){
-            DijkstraMap dijkstra = getDijkstraMap(gameMap);
-            dijkstra.setGoal(player.getX(), player.getY());
-            ArrayList<Coord> path = dijkstra.findPath(1, null,null, Coord.get(enemy.getX(), enemy.getY()));
+            ArrayList<Coord> path = dijkstraMap.findPath(1, null,null, Coord.get(enemy.getX(), enemy.getY()));
             if (!path.isEmpty()){
                 Coord nextStep = path.get(0);
                 if (isMoveValid(nextStep.x, nextStep.y, gameMap, player)){
@@ -50,7 +48,7 @@ public class EnemyAIService {
         }
     }
 
-    private DijkstraMap getDijkstraMap(GameMap gameMap) {
+    public DijkstraMap getDijkstraMap(GameMap gameMap) {
         char[][] costMap = new char[gameMap.getWidth()][gameMap.getHeight()];
         for (int x = 0; x < gameMap.getWidth(); x++) {
             for (int y = 0; y < gameMap.getHeight(); y++) {
