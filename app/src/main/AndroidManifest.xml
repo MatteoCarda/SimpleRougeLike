@@ -7,19 +7,16 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android.label="@string/app_name"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SimpleRougeLike" >
+        android:theme="@style/Theme.SimpleRougeLike">
 
-        <!-- Dichiarazione dell'Activity principale -->
         <activity
             android:name=".activity.MainActivity"
-            android:exported="true">  <!-- 'exported=true' è obbligatorio per l'activity di avvio -->
+            android:exported="true">
             <intent-filter>
-                <!-- Questa è l'azione che identifica l'activity come punto di ingresso principale -->
                 <action android:name="android.intent.action.MAIN" />
-                <!-- Questa categoria dice al sistema di mostrare l'activity nel launcher delle app -->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
