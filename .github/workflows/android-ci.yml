@@ -4,9 +4,9 @@ name: Android CI
 # Trigger: Esegui ad ogni push o pull request sul branch 'main'.
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   # Job principale che compila il codice ed esegue i test.
