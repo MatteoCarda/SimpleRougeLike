@@ -3,53 +3,45 @@ package com.github.matteoCarda.simplerougelike.service;
 import com.github.matteoCarda.simplerougelike.model.entity.Character;
 
 /**
- * Servizio dedicato alla gestione di tutte le logiche legate al combattimento.
- * Isola le regole di attacco e danno dal resto del modello e dei controller.
+ * Gestisce la logica di combattimento.
+ * Isola le regole di attacco e applicazione del danno.
  */
 public class CombatService {
 
-    /**
-     * Riferimento al CharacterService per manipolare lo stato dei personaggi (es. vita).
-     * Questa è un'iniezione di dipendenza: il CombatService non crea il CharacterService,
-     * ma lo riceve dall'esterno, rendendo il codice più modulare e testabile.
-     */
     private final CharacterService characterService;
 
     /**
-     * Costruttore del servizio di combattimento.
-     * @param characterService Un'istanza di CharacterService, necessaria per operare.
+     * Costruttore.
+     * @param characterService Istanza di CharacterService per la manipolazione dello stato dei personaggi.
      */
     public CombatService(CharacterService characterService) {
         this.characterService = characterService;
     }
 
     /**
-     * Esegue una singola azione di attacco da un personaggio (attacker) a un altro (target).
-     * Questo metodo si occupa di verificare la validità dell'attacco e di applicare il danno.
+     * Esegue un attacco da un'entità (attacker) a un'altra (target).
+     * Applica il danno e restituisce se il target è stato sconfitto.
      *
-     * @param attacker Il personaggio che esegue l'attacco.
-     * @param target Il personaggio che dovrebbe subire l'attacco.
+     * @param attacker L'entità che attacca.
+     * @param target L'entità che subisce l'attacco.
+     * @return true se il target è morto dopo l'attacco, false altrimenti.
      */
     public boolean performAttack(Character attacker, Character target) {
-        // Prima di tutto, un po' di controlli di sicurezza.
-        // Non ha senso continuare se uno dei due contendenti non esiste o è già fuori combattimento.
+        // Controlli di validità: non si può attaccare o essere attaccati se nulli o morti.
         if (attacker == null || target == null || !characterService.isAlive(attacker) || !characterService.isAlive(target)) {
-            return false; // Interrompiamo l'azione qui.
+            return false;
         }
 
-        // Calcoliamo il danno. Per ora è semplice: il danno è uguale alla potenza d'attacco.
-        // In futuro, qui si potrebbero aggiungere calcoli più complessi (es. bonus, armature).
+        // Formula del danno (attualmente semplice, può essere espansa).
         double damage = attacker.getAttackPower();
         
-        // Applichiamo il danno al bersaglio usando il servizio apposito.
-        // Deleghiamo al CharacterService il compito di ridurre la vita del target.
+        // Delega l'applicazione del danno al service apposito.
         characterService.takeDamage(target, damage);
 
-        // Questo è utile per seguire cosa succede durante il gioco.
-        // Stampa un messaggio nella console che riassume l'esito dell'attacco.
         System.out.println(attacker.getClass().getSimpleName() + " attacca " + target.getClass().getSimpleName() +
-                " infliggendo " + damage + " danni. Vita rimanente: " + target.getHealth());
+                " per " + damage + " danni. Vita rimanente: " + target.getHealth());
 
-        return !characterService.isAlive(target); // Restituiamo true se il target è morto.
+        // Ritorna lo stato di "morte" del target post-attacco.
+        return !characterService.isAlive(target);
     }
 }

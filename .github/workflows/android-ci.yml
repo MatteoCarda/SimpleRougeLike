@@ -1,57 +1,48 @@
-  yml
-  # Nome del workflow, apparirà nella sezione "Actions" di GitHub.
-  name: Android CI
+# Workflow di Integrazione Continua (CI) per l'app Android.
+name: Android CI
 
-  # Trigger: quando deve partire questo workflow?
-  # In questo caso, ogni volta che fai un 'push' sul branch 'main'
-  # o quando apri una Pull Request verso 'main'.
-  on:
-    push:
-      branches: [ "main" ]
-    pull_request:
-      branches: [ "main" ]
+# Trigger: Esegui ad ogni push o pull request sul branch 'main'.
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
-  # Definisce i "lavori" (jobs) da eseguire. Possiamo averne più di uno.
-  jobs:
-    # Nome del nostro unico job. Puoi chiamarlo come vuoi.
-    build-and-test:
-      # Sistema operativo su cui verrà eseguito il job. Per Android, 'ubuntu-latest' è lo standard.
-      runs-on: ubuntu-latest
+jobs:
+  # Job principale che compila il codice ed esegue i test.
+  build:
+    # Eseguito su un'immagine standard di Ubuntu.
+    runs-on: ubuntu-latest
 
-      # Sequenza di passaggi (steps) che compongono il job.
-      steps:
-        # Step 1: Scarica il codice dal tuo repository.
-        # 'actions/checkout@v4' è un'azione predefinita di GitHub per fare questo.
-        - name: Checkout repository
-          uses: actions/checkout@v4
+    steps:
+      # 1. Checkout del codice sorgente del repository.
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        # Step 2: Imposta l'ambiente Java (JDK).
-        # Android ha bisogno di una versione specifica di Java per essere compilato.
-        - name: Set up JDK 17
-          uses: actions/setup-java@v4
-          with:
-            java-version: '17'
-            distribution: 'temurin'
-            cache: 'gradle' # Mette in cache le dipendenze di Gradle per velocizzare le build future.
+      # 2. Setup del JDK corretto (versione 17, Temurin).
+      # La cache di Gradle viene abilitata per velocizzare le esecuzioni successive.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
-        # Step 3: Concedi i permessi di esecuzione al Gradle Wrapper.
-        # gradlew è lo script usato per eseguire i comandi di Gradle. Ha bisogno dei permessi per essere eseguito.
-        - name: Grant execute permission for gradlew
-          run: chmod +x gradlew
+      # 3. Il Gradle Wrapper ha bisogno dei permessi di esecuzione per funzionare su sistemi Linux/macOS.
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-        # Step 4: Esegui i Test Unitari!
-        # Questo è il cuore del nostro workflow.
-        # Il comando './gradlew testDebugUnitTest' è lo stesso che Android Studio esegue
-        # quando avvii i tuoi unit test. Eseguirà tutte le classi in 'src/test'.
-        - name: Run unit tests
-          run: ./gradlew testDebugUnitTest
+      # 4. Esegue tutti i test unitari del modulo 'app'.
+      # Questo comando compila il progetto ed esegue i test locati in `src/test`.
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
 
-        # (Opzionale) Step 5: Se i test falliscono, carica i report degli errori.
-        # Questo ti permette di scaricare il file HTML con i dettagli dei test falliti
-        # direttamente dalla pagina dell'azione su GitHub. Utilissimo per il debug.
-        - name: Upload test reports
-          if: failure() # Esegui questo step solo se lo step precedente è fallito.
-          uses: actions/upload-artifact@v4
-          with:
-            name: unit-test-reports
-            path: app/build/reports/tests/testDebugUnitTest/
+      # 5. Carica i report dei test come "artifact" su GitHub.
+      # Viene eseguito solo se lo step precedente fallisce (`if: failure()`), 
+      # così da poter analizzare gli errori comodamente.
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports # Nome dell'artifact scaricabile.
+          path: app/build/reports/tests/testDebugUnitTest/

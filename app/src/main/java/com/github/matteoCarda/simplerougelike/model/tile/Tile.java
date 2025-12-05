@@ -1,60 +1,38 @@
 package com.github.matteoCarda.simplerougelike.model.tile;
 
 /**
- * Rappresenta una singola "casella" o "tessera" nella mappa di gioco.
- * È una classe astratta da cui derivano tutti i tipi specifici di caselle (es. Muro, Pavimento).
+ * Classe base astratta per una singola cella della mappa di gioco.
+ * Definisce la posizione e le proprietà fondamentali come la calpestabilità.
  */
 public abstract class Tile {
     protected int x;
     protected int y;
-    /**
-     * Flag che indica se la casella è stata scoperta dal giocatore.
-     */
     protected boolean isVisible;
 
     /**
-     * Costruttore per una Tile.
-     *
-     * @param x La coordinata x della casella.
-     * @param y La coordinata y della casella.
+     * Costruttore.
+     * @param x Coordinata x.
+     * @param y Coordinata y.
      */
     public Tile(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    /**
-     * Restituisce la coordinata x della casella.
-     *
-     * @return La coordinata x.
-     */
-    public int getX() {return x;}
+    public int getX() { return x; }
+    public int getY() { return y; }
 
     /**
-     * Restituisce la coordinata y della casella.
-     *
-     * @return La coordinata y.
+     * Flag che indica se la casella è stata scoperta (esplorata) dal giocatore.
+     * Usato per il "Fog of War" persistente.
      */
-    public int getY() {return y;}
+    public boolean isVisible() { return isVisible; }
 
-    /**
-     * Indica se la casella è attualmente visibile al giocatore.
-     *
-     * @return true se la casella è visibile, false altrimenti.
-     */
-    public boolean isVisible() {return isVisible;}
-
-    /**
-     * Imposta la visibilità della casella.
-     *
-     * @param visible il nuovo stato di visibilità.
-     */
     public void setVisible(boolean visible) { this.isVisible = visible; }
 
     /**
-     * Metodo astratto per determinare se un personaggio può camminare su questa casella.
-     *
-     * @return true se la casella è calpestabile, false altrimenti.
+     * Definisce se un'entità può passare attraverso questa cella.
+     * @return true se la cella è calpestabile, false altrimenti.
      */
     public abstract boolean isWalkable();
 }

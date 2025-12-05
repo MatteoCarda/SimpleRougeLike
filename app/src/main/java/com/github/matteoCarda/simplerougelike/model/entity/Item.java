@@ -1,29 +1,23 @@
 package com.github.matteoCarda.simplerougelike.model.entity;
 
 /**
- * Rappresenta un oggetto generico nel gioco.
- * È una classe astratta da cui derivano tutti gli oggetti specifici.
+ * Classe base astratta per gli oggetti raccoglibili nel gioco.
+ * Fornisce un nome e una posizione.
  */
 public abstract class Item extends GameObject {
     protected String name;
 
     /**
-     * Costruttore per un oggetto.
-     *
-     * @param x La coordinata x iniziale dell'oggetto.
-     * @param y La coordinata y iniziale dell'oggetto.
-     * @param name Il nome dell'oggetto.
+     * Costruttore.
+     * @param x Coordinata x iniziale.
+     * @param y Coordinata y iniziale.
+     * @param name Nome dell'oggetto.
      */
     public Item( int x, int y, String name) {
         super(x, y);
         this.name = name;
     }
 
-    /**
-     * Restituisce il nome dell'oggetto.
-     *
-     * @return Il nome dell'oggetto.
-     */
     public String getName() {
         return name;
     }

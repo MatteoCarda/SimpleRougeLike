@@ -1,25 +1,22 @@
 package com.github.matteoCarda.simplerougelike.model.tile;
 
 /**
- * Rappresenta una casella di tipo "Pavimento" sulla mappa.
- * È sempre calpestabile.
+ * Una {@link Tile} calpestabile che rappresenta il pavimento.
  */
 public class FloorTile extends Tile {
 
     /**
-     * Costruttore per una casella Pavimento.
-     *
-     * @param x La coordinata x della casella.
-     * @param y La coordinata y della casella.
+     * Costruttore.
+     * @param x Coordinata x.
+     * @param y Coordinata y.
      */
     public FloorTile(int x, int y) {
         super(x, y);
     }
 
     /**
-     * Determina se un personaggio può camminare su questa casella.
-     *
-     * @return true, perché il pavimento è sempre calpestabile.
+     * Il pavimento è sempre calpestabile.
+     * @return Sempre true.
      */
     @Override
     public boolean isWalkable() {
