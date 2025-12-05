@@ -19,7 +19,7 @@ public class CharacterService {
         if (character == null || !isAlive(character)) {
             return;
         }
-        double newHealth = Math.max(0, character.getHealth() - damageAmount);
+        int newHealth = (int) Math.max(0, character.getHealth() - damageAmount);
         character.setHealth(newHealth);
     }
 
@@ -29,7 +29,7 @@ public class CharacterService {
      * @param healingAmount La quantità di salute da ripristinare.
      */
     public void heal(Character character, double healingAmount) {
-        double newHealth = Math.min(character.getMaxHealth(), character.getHealth() + healingAmount);
+        int newHealth = (int) Math.min(character.getMaxHealth(), character.getHealth() + healingAmount);
         character.setHealth(newHealth);
     }
 

@@ -10,6 +10,8 @@ import com.github.matteoCarda.simplerougelike.model.entity.Player;
 import com.github.matteoCarda.simplerougelike.service.CharacterService;
 import com.github.matteoCarda.simplerougelike.service.CombatService;
 import com.github.matteoCarda.simplerougelike.service.EnemyAIService;
+import com.github.matteoCarda.simplerougelike.service.PlayerService;
+import com.github.matteoCarda.simplerougelike.service.PlayerServiceTest;
 import com.github.matteoCarda.simplerougelike.util.MapGenerator;
 
 import squidpony.squidai.DijkstraMap;
@@ -20,7 +22,8 @@ public class GameIntegrationTest {
     public void enemyChasesAndAttacksPlayer_IntegrationTest() {
         // Arrange: Creiamo le istanze REALI di tutti i servizi
         CharacterService characterService = new CharacterService();
-        CombatService combatService = new CombatService(characterService); // Inietta il vero servizio
+        PlayerService playerService = new PlayerService();
+        CombatService combatService = new CombatService(characterService, playerService); // Inietta il vero servizio
         EnemyAIService enemyAIService = new EnemyAIService(combatService, characterService);
 
         // Creiamo una mappa con un giocatore e un nemico vicini
@@ -42,6 +45,6 @@ public class GameIntegrationTest {
         // Assert: Verifichiamo il risultato finale
         // Ci aspettiamo che la salute del giocatore sia diminuita
         assertTrue("La salute del giocatore dovrebbe essere diminuita dopo l'attacco", player.getHealth() < playerInitialHealth);
-        Assert.assertEquals(100.0 - enemy.getAttackPower(), player.getHealth(), 0.0);
+        Assert.assertEquals(playerInitialHealth - Math.round(enemy.getAttackPower()), player.getHealth(), 0.0);
     }
 }

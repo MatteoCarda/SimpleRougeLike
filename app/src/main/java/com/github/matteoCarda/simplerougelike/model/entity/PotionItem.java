@@ -5,7 +5,7 @@ package com.github.matteoCarda.simplerougelike.model.entity;
  */
 public class PotionItem extends Item{
 
-    private final double healingAmount;
+    private final int healingAmount;
 
     /**
      * Costruttore.

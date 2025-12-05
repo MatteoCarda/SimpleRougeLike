@@ -11,6 +11,10 @@ public class Player extends Character {
 
     // Inventario per gli oggetti raccolti.
     private final List<Item> inventory;
+    private int level;
+    private int experience;
+    private int experienceToNextLevel;
+
 
     /**
      * Costruttore.
@@ -21,6 +25,33 @@ public class Player extends Character {
         // Statistiche base per il giocatore.
         super(x, y, 100, 10);
         this.inventory = new ArrayList<>();
+        this.level = 1;
+        this.experience = 0;
+        this.experienceToNextLevel = 100;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+
+    public void setExperience(int experience) {
+        this.experience = experience;
+    }
+
+    public int getExperienceToNextLevel() {
+        return experienceToNextLevel;
+    }
+
+    public void setExperienceToNextLevel(int experienceToNextLevel) {
+        this.experienceToNextLevel = experienceToNextLevel;
     }
 
     /**

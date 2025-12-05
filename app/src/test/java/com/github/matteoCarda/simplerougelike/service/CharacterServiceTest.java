@@ -40,7 +40,7 @@ public class CharacterServiceTest {
 
     @Test
     public void heal_IncreasesHealthCorrectly() {
-        player.setHealth(50.0);
+        player.setHealth(50);
         characterService.heal(player, 20.0);
         assertEquals(70.0, player.getHealth(), 0.0);
     }

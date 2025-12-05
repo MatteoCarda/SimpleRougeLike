@@ -5,8 +5,8 @@ package com.github.matteoCarda.simplerougelike.model.entity;
  * Contiene le statistiche fondamentali come salute e potenza d'attacco.
  */
 public abstract class Character extends GameObject {
-    protected double health;
-    protected double maxHealth;
+    protected int health;
+    protected int maxHealth;
     protected double attackPower;
 
     /**
@@ -16,7 +16,7 @@ public abstract class Character extends GameObject {
      * @param health Salute iniziale (e massima).
      * @param attackPower Potenza d'attacco base.
      */
-    public Character(int x, int y, double health, double attackPower) {
+    public Character(int x, int y, int health, double attackPower) {
         super(x, y);
         this.health = health;
         this.maxHealth = health;
@@ -25,11 +25,11 @@ public abstract class Character extends GameObject {
 
     // --- Getters e Setters ---
 
-    public double getHealth() { return this.health; }
-    public void setHealth(double health) { this.health = health; }
+    public int getHealth() { return this.health; }
+    public void setHealth(int health) { this.health = health; }
 
-    public double getMaxHealth() { return this.maxHealth; }
-    public void setMaxHealth(double maxHealth) { this.maxHealth = maxHealth; }
+    public int getMaxHealth() { return this.maxHealth; }
+    public void setMaxHealth(int maxHealth) { this.maxHealth = maxHealth; }
 
     public double getAttackPower() { return this.attackPower; }
     public void setAttackPower(double attackPower) { this.attackPower = attackPower; }

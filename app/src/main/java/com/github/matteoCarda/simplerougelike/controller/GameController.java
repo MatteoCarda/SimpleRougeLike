@@ -1,5 +1,7 @@
 package com.github.matteoCarda.simplerougelike.controller;
 
+import android.widget.ProgressBar;
+
 import com.github.matteoCarda.simplerougelike.model.GameMap;
 import com.github.matteoCarda.simplerougelike.model.entity.Character;
 import com.github.matteoCarda.simplerougelike.model.entity.Enemy;
@@ -9,7 +11,9 @@ import com.github.matteoCarda.simplerougelike.service.CharacterService;
 import com.github.matteoCarda.simplerougelike.service.CombatService;
 import com.github.matteoCarda.simplerougelike.service.EnemyAIService;
 import com.github.matteoCarda.simplerougelike.service.ItemService;
+import com.github.matteoCarda.simplerougelike.service.PlayerService;
 import com.github.matteoCarda.simplerougelike.util.MapGenerator;
+import com.github.matteoCarda.simplerougelike.view.GameView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +32,8 @@ public class GameController {
     private GameMap gameMap;
     private Player player;
     private GameState gameState;
+    private PlayerService playerService;
+
 
     // Servizi delegati alla logica di business
     private final MapGenerator mapGenerator;
@@ -39,6 +45,8 @@ public class GameController {
     // Gestione del Field of View (FOV)
     private static final int PLAYER_VISION_RADIUS = 8;
     private FOV fov;
+    private ProgressBar healthBar;
+    private ProgressBar xpBar;
     private double[][] playerFov; // Mappa di visibilità per il rendering
     private double[][] resistanceMap; // Mappa statica della "resistenza" alla luce (1.0 = muro)
 
@@ -61,7 +69,8 @@ public class GameController {
     private GameController() {
         this.mapGenerator = new MapGenerator();
         this.characterService = new CharacterService();
-        this.combatService = new CombatService(this.characterService);
+        this.playerService = new PlayerService();
+        this.combatService = new CombatService(this.characterService, this.playerService);
         this.itemService = new ItemService(this.characterService);
         this.enemyAIService = new EnemyAIService(this.combatService, this.characterService);
         this.gameState = GameState.GAME_OVER; // Il gioco parte in attesa di una nuova partita.
@@ -71,7 +80,10 @@ public class GameController {
     public GameMap getGameMap() { return gameMap; }
     public GameState getGameState() { return gameState; }
     public double[][] getPlayerFov() { return playerFov; }
-    public boolean isAlive(Character character) { return characterService.isAlive(character); }
+    public boolean isAlive(Character character) { return characterService.isAlive(character);}
+    public void setHealthBar(ProgressBar healthBar) {this.healthBar = healthBar;}
+    public void setXpBar(ProgressBar xpBar) {this.xpBar = xpBar;}
+
 
     /**
      * Inizializza una nuova partita, generando mappa e stato del FOV.
@@ -80,7 +92,6 @@ public class GameController {
         this.gameMap = mapGenerator.generateMap(width, height, enemyCount, itemCount);
         this.player = gameMap.getPlayer();
         this.gameState = GameState.PLAYING;
-
         // Pre-calcola la mappa di resistenza per il FOV.
         this.fov = new FOV();
         this.playerFov = new double[width][height];
@@ -91,6 +102,19 @@ public class GameController {
             }
         }
         calculateFov();
+        updateUI();
+    }
+
+    private void updateUI(){
+        if (healthBar != null && gameMap != null) {
+            Player player = gameMap.getPlayer();
+            healthBar.setMax(player.getMaxHealth());
+            healthBar.setProgress(player.getHealth());
+        }
+        if (xpBar != null) {
+            xpBar.setMax(player.getExperienceToNextLevel());
+            xpBar.setProgress(player.getExperience());
+        }
     }
 
     /**
@@ -103,6 +127,7 @@ public class GameController {
         handlePlayerAction(direction);
         processEnemyTurns();
         checkEndGameConditions();
+        updateUI();
     }
 
     /**
